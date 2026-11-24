@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/libs/I18nNavigation';
 
 const studies = [
   { name: ['Kiln Yard', 'Cour du four'], category: 'earth', colours: ['#963F2D', '#D49B6B', '#EFDCC2', '#473B35'] },
@@ -30,10 +30,10 @@ export function PaletteLibrary({ french }: { french: boolean }) {
   return (
     <main className="atlas" id="top">
       <header className="oa-nav">
-        <Link href={french ? '/fr' : '/'} className="oa-wordmark">Ochre Atlas<span aria-hidden="true">.</span></Link>
+        <Link href="/" className="oa-wordmark">Ochre Atlas<span aria-hidden="true">.</span></Link>
         <nav aria-label={french ? 'Navigation principale' : 'Main navigation'}>
           <a href="#library">{french ? 'Bibliothèque' : 'Library'}</a>
-          <Link href={french ? '/' : '/fr'} hrefLang={french ? 'en' : 'fr'} lang={french ? 'en' : 'fr'}>{french ? 'English' : 'Français'}</Link>
+          <Link href="/" locale={french ? 'en' : 'fr'} lang={french ? 'en' : 'fr'}>{french ? 'English' : 'Français'}</Link>
         </nav>
       </header>
       <section className="oa-hero">
