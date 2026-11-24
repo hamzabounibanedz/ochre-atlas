@@ -10,6 +10,8 @@ export default async function AuthLayout(props: {
   const { locale } = await props.params;
   setRequestLocale(locale);
 
+  if (process.env.PORTFOLIO_MODE === 'true') return null;
+
   const clerkLocale = ClerkLocalizations.supportedLocales[locale] ?? ClerkLocalizations.defaultLocale;
 
   return (

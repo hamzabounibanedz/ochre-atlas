@@ -1,0 +1,14 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build:next",
+  "build": {
+    "env": {
+      "PORTFOLIO_MODE": "true",
+      "NEXT_PUBLIC_SENTRY_DISABLED": "true"
+    }
+  },
+  "env": {
+    "PORTFOLIO_MODE": "true",
+    "NEXT_PUBLIC_SENTRY_DISABLED": "true"
+  }
+}

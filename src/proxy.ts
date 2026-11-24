@@ -28,6 +28,10 @@ export default async function proxy(
   if (
     isAuthPage(request) || isProtectedRoute(request)
   ) {
+    if (process.env.PORTFOLIO_MODE === 'true') {
+      const home = request.nextUrl.pathname.startsWith('/fr/') ? '/fr' : '/';
+      return NextResponse.redirect(new URL(home + '#library', request.url));
+    }
     return clerkMiddleware(async (auth, req) => {
       // Check if the current route is protected and requires authentication
       // If user is not authenticated, redirect them to the sign-in page with proper locale

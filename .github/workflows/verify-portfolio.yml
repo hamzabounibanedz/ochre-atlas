@@ -1,0 +1,29 @@
+name: Verify portfolio
+on: workflow_dispatch
+permissions:
+  contents: read
+env:
+  PORTFOLIO_MODE: 'true'
+  NEXT_PUBLIC_SENTRY_DISABLED: 'true'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install and build
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build:next
+      - name: Check public routes
+        run: |
+          npm start > /tmp/portfolio.log 2>&1 &
+          curl --retry 20 --retry-all-errors --retry-delay 1 -fsS http://localhost:3000/ -o /tmp/home.html
+          grep -Fq 'Ochre Atlas' /tmp/home.html
+          curl -fsS http://localhost:3000/fr -o /tmp/french.html
+          grep -Fq "Bibliothèque" /tmp/french.html

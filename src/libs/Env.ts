@@ -2,6 +2,7 @@ import { createEnv } from '@t3-oss/env-nextjs';
 import * as z from 'zod';
 
 export const Env = createEnv({
+  skipValidation: process.env.PORTFOLIO_MODE === 'true',
   server: {
     CLERK_SECRET_KEY: z.string().min(1),
     DATABASE_URL: z.string().min(1),
