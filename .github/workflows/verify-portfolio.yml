@@ -27,3 +27,47 @@ jobs:
           grep -Fq 'Ochre Atlas' /tmp/home.html
           curl -fsS http://localhost:3000/fr -o /tmp/french.html
           grep -Fq "Bibliothèque" /tmp/french.html
+      - name: Test the live interface in Chrome
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
+        run: |
+          mkdir -p "$RUNNER_TEMP/browser"
+          npm install --prefix "$RUNNER_TEMP/browser" --no-audit --no-fund playwright-core@1.65.1
+          cat > "$RUNNER_TEMP/browser/verify.cjs" <<'JS'
+          const { chromium } = require('playwright-core');
+          const assert = require('node:assert/strict');
+
+          (async () => {
+            const browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+            try {
+              const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, permissions: ['clipboard-read', 'clipboard-write'] });
+              const page = await context.newPage();
+              const errors = [];
+              page.on('pageerror', error => errors.push(error.message));
+              await page.goto('http://localhost:3000/');
+              await page.getByRole('button', { name: 'Coast', exact: true }).click();
+              assert.equal(await page.locator('article').count(), 2);
+              await page.getByRole('button', { name: 'Copy #354D4C' }).click();
+              assert.equal(await page.evaluate(() => navigator.clipboard.readText()), '#354D4C');
+              await page.getByRole('link', { name: 'Français' }).click();
+              await page.getByRole('heading', { name: 'Bibliothèque de palettes' }).waitFor();
+              await page.getByRole('link', { name: 'English' }).click();
+              await page.getByRole('heading', { name: 'Palette library' }).waitFor();
+              for (const width of [1440, 390]) {
+                await page.setViewportSize({ width, height: 900 });
+                await page.evaluate(() => window.scrollTo(0, 0));
+                assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Horizontal overflow');
+                await page.screenshot({ path: process.env.RUNNER_TEMP + '/portfolio-' + width + '.png', fullPage: true });
+              }
+              assert.deepEqual(errors, []);
+            } finally {
+              await browser.close();
+            }
+          })().catch(error => { console.error(error); process.exitCode = 1; });
+          JS
+          node "$RUNNER_TEMP/browser/verify.cjs"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-screenshots
+          path: ${{ runner.temp }}/portfolio-*.png
+          retention-days: 7

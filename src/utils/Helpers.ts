@@ -13,6 +13,9 @@ export function cn(...inputs: ClassValue[]) {
  * @returns The configured public app URL or the local development URL.
  */
 export const getBaseUrl = () => {
+  if (process.env.PORTFOLIO_MODE === 'true' && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return 'https://' + process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  }
   if (Env.NEXT_PUBLIC_APP_URL) {
     return Env.NEXT_PUBLIC_APP_URL;
   }
